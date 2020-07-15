@@ -1,0 +1,37 @@
+{
+    "name": "vtech/theme",
+    "description": "Load and process themes for Laravel.",
+    "keywords": ["themes", "templates", "views", "assets", "blade", "laravel", "package"],
+    "license": "MIT",
+    "homepage": "https://vtechweb.com",
+    "authors": [
+        {
+            "name": "Jackie Do",
+            "email": "anhvudo@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "illuminate/support": "^5.4|^6.0|^7.0",
+        "vtech/console": "^1.0"
+    },
+    "autoload": {
+        "files": [
+            "src/helpers.php"
+        ],
+        "psr-4": {
+            "Vtech\\Theme\\": "src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "aliases": {
+                "Theme": "Vtech\\Theme\\Facades\\Theme"
+            },
+            "providers": [
+                "Vtech\\Theme\\ThemeServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable"
+}
