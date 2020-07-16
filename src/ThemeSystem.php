@@ -8,7 +8,6 @@ use Symfony\Component\Finder\Finder;
 use Vtech\Theme\Exceptions\InvalidCacheFile;
 use Vtech\Theme\Exceptions\InvalidThemeJsonFile;
 use Vtech\Theme\Exceptions\ThemeAlreadyExists;
-use Vtech\Theme\Exceptions\ThemeException;
 use Vtech\Theme\Exceptions\ThemeNotFound;
 use Vtech\Theme\Traits\InitTheme;
 
@@ -70,7 +69,6 @@ class ThemeSystem
      * @param array  $args   The method arguments
      *
      * @throws BadMethodCallException
-     * @throws ThemeException
      *
      * @return mixed
      */
@@ -84,7 +82,7 @@ class ThemeSystem
             throw new BadMethodCallException(sprintf('Method %s::%s does not exist.', get_class($theme), $method));
         }
 
-        throw new ThemeException(sprintf('No theme is set. Can not excute the proxy %s::%s', __CLASS__, $method), 1);
+        throw new BadMethodCallException(sprintf('No theme is activated. Method %s::%s does not exist.', __CLASS__, $method));
     }
 
     /**
@@ -211,6 +209,16 @@ class ThemeSystem
     }
 
     /**
+     * remove the cache file.
+     *
+     * @return bool
+     */
+    public function clearCached()
+    {
+        return @unlink($this->getCachedPath());
+    }
+
+    /**
      * Scans themes storage path for theme.json files and
      * returns an array of themes information.
      *
@@ -279,6 +287,16 @@ class ThemeSystem
         $path = $path ? $this->themesPath . '/' . $path : $this->themesPath;
 
         return unify_separator($path);
+    }
+
+    /**
+     * Get the path to cache file.
+     *
+     * @return string
+     */
+    public function getCachedPath()
+    {
+        return $this->cacheFile;
     }
 
     /**
@@ -480,7 +498,7 @@ class ThemeSystem
             $this->asset($path, $secure),
             $alt,
             $class,
-            $this->HtmlAttributes($attributes)
+            $this->htmlAttributes($attributes)
         );
     }
 
@@ -538,7 +556,7 @@ class ThemeSystem
      *
      * @return string
      */
-    protected function HtmlAttributes(array $attributes = [])
+    protected function htmlAttributes(array $attributes = [])
     {
         $formatted = join(' ', array_map(function ($key) use ($attributes) {
             if (is_bool($attributes[$key])) {

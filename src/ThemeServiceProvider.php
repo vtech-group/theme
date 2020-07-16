@@ -3,8 +3,10 @@
 namespace Vtech\Theme;
 
 use Illuminate\Support\ServiceProvider;
+use Vtech\Theme\Commands\ClearCache;
 use Vtech\Theme\Commands\ListTheme;
 use Vtech\Theme\Commands\NewTheme;
+use Vtech\Theme\Commands\RebuildCache;
 use Vtech\Theme\Commands\RemoveTheme;
 
 /**
@@ -22,9 +24,11 @@ class ThemeServiceProvider extends ServiceProvider
      * @var array
      */
     protected $commands = [
-        ListTheme::class   => 'command.theme.list',
-        NewTheme::class    => 'command.theme.new',
-        RemoveTheme::class => 'command.theme.remove',
+        ListTheme::class    => 'command.theme.list',
+        NewTheme::class     => 'command.theme.new',
+        RemoveTheme::class  => 'command.theme.remove',
+        ClearCache::class   => 'command.theme.clear_cache',
+        RebuildCache::class => 'command.theme.rebuild_cache',
     ];
 
     /**
