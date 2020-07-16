@@ -212,7 +212,7 @@ class Theme implements ThemeModel
     }
 
     /**
-     * Check if a specific theme's view (do not include it's parent) exists.
+     * Check if a specific theme's view (do not include its parent) exists.
      *
      * @param string $name The view name
      *
@@ -243,6 +243,22 @@ class Theme implements ThemeModel
     }
 
     /**
+     * Check if a specific theme's asset (do not include its parent) exists.
+     *
+     * @param string $path The asset path
+     *
+     * @return bool
+     */
+    final public function hasAsset($path)
+    {
+        $assetsStorage = rtrim(config('themes.assets_folder'), '/\\');
+        $assetsFolder  = $assetsStorage ? $assetsStorage . '/' . $this->name : $this->name;
+        $assetFile     = $assetFolder . '/' . $path;
+
+        return is_file(public_path($assetFile));
+    }
+
+    /**
      * Extends a theme.
      *
      * @param ThemeModel $theme The theme wants to extend
@@ -259,12 +275,12 @@ class Theme implements ThemeModel
     }
 
     /**
-     * Get all paths to load views of theme and it's parent.
-     * This feature is required to set paths for ViewFinder.
+     * Get all paths to directories used to store the views of
+     * theme, inluding its parents.
      *
      * @return array Array of absolute paths
      */
-    final public function getFindViewPaths()
+    final public function collectViewPaths()
     {
         $paths = [];
         $theme = $this;
@@ -323,7 +339,7 @@ class Theme implements ThemeModel
         }
 
         // Lookup asset in current's theme assets folder
-        $assetsStorage = config('themes.assets_folder');
+        $assetsStorage = rtrim(config('themes.assets_folder'), '/\\');
         $assetsFolder  = $assetsStorage ? $assetsStorage . '/' . $this->name : $this->name;
         $fullUrl       = unify_separator($assetsFolder . '/' . $baseUrl, '/');
 

@@ -24,13 +24,6 @@ class ThemeSystem
     use InitTheme;
 
     /**
-     * The original view.paths config of Laravel.
-     *
-     * @var array
-     */
-    protected $laravelViewPaths;
-
-    /**
      * The path to directory used to store Views of all themes.
      *
      * @var string
@@ -52,7 +45,7 @@ class ThemeSystem
     protected $active;
 
     /**
-     * Store all valid themes have been scanned.
+     * Store all valid themes have been initialized.
      *
      * @var array
      */
@@ -65,7 +58,6 @@ class ThemeSystem
      */
     public function __construct()
     {
-        $this->storeLaravelViewPaths();
         $this->setThemesPath();
         $this->setCachePath();
     }
@@ -300,7 +292,7 @@ class ThemeSystem
     }
 
     /**
-     * Check if theme is registered by it's name.
+     * Check if theme is registered by its name.
      *
      * @param string $name The name of theme
      *
@@ -320,7 +312,7 @@ class ThemeSystem
     }
 
     /**
-     * Find a theme by it's name.
+     * Find a theme by its name.
      *
      * @param string $name The name of theme
      *
@@ -348,6 +340,10 @@ class ThemeSystem
      */
     public function uses($name)
     {
+        // Store all view paths of the previous theme and its parents
+        $previousThemePaths = $this->activated() ? $this->current()->collectViewPaths() : [];
+
+        // Get the new theme want to use
         $theme = $this->tryCall([$this, 'find'], $name);
 
         if (!$theme) {
@@ -360,28 +356,31 @@ class ThemeSystem
             }
         }
 
-        // Set active theme
+        // Active new theme
         $this->active = $theme;
 
-        // Get all views path of theme and it's parent
-        $paths = $theme->getFindViewPaths();
+        // Get all view paths of recently activated theme and its parent
+        $recentThemePaths = $theme->collectViewPaths();
 
-        // Fall-back to default paths (default view.paths config)
-        foreach ($this->laravelViewPaths as $path) {
+        // Add fallback theme paths using original paths (default view.paths config)
+        // except theme paths of the previous theme
+        $configViewPaths = config('view.paths');
+
+        foreach ($configViewPaths as $path) {
             $path = unify_separator($path);
 
-            if (!in_array($path, $paths)) {
-                $paths[] = $path;
+            if (!in_array($path, $recentThemePaths) && !in_array($path, $previousThemePaths)) {
+                $recentThemePaths[] = $path;
             }
         }
 
-        // Re-config view paths
-        config(['view.paths' => $paths]);
-
         // Set paths for view finder
         $viewFinder = app('view.finder');
-        $viewFinder->setPaths($paths);
+        $viewFinder->setPaths($recentThemePaths);
         $viewFinder->flush();
+
+        // Reconfigure view paths
+        config(['view.paths' => $recentThemePaths]);
 
         // Fire event
         event('theme.change', $theme);
@@ -390,11 +389,11 @@ class ThemeSystem
     }
 
     /**
-     * Check if the theme has been used.
+     * Check if any themes has been used.
      *
      * @return bool
      */
-    public function used()
+    public function activated()
     {
         return $this->active instanceof Theme;
     }
@@ -416,17 +415,7 @@ class ThemeSystem
      */
     public function name()
     {
-        return $this->used() ? $this->active->name : null;
-    }
-
-    /**
-     * Original view paths defined in Laravel view.paths config.
-     *
-     * @return array
-     */
-    public function getLaravelViewPaths()
-    {
-        return array_map('unify_separator', $this->laravelViewPaths);
+        return $this->activated() ? $this->active->name : null;
     }
 
     /**
@@ -439,7 +428,7 @@ class ThemeSystem
      */
     public function asset($path, $secure = null)
     {
-        if (!$this->used()) {
+        if (!$this->activated()) {
             return asset(unify_separator($path, '/'), $secure);
         }
 
@@ -493,18 +482,6 @@ class ThemeSystem
             $class,
             $this->HtmlAttributes($attributes)
         );
-    }
-
-    /**
-     * Store the original Laravel view.paths config.
-     *
-     * @return $this
-     */
-    protected function storeLaravelViewPaths()
-    {
-        $this->laravelViewPaths = config('view.paths');
-
-        return $this;
     }
 
     /**

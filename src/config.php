@@ -8,14 +8,14 @@ return [
     |--------------------------------------------------------------------------
     |
     | The path to directory used to store Views of all themes.
-    | Can be outside default views path. Example: base_path('resources/themes')
+    | Can be outside default views path. Example: resource_path('themes')
     |
     | Leave it null if you will put your themes in the default views folder
     | (as defined in config/view.php)
     |
     */
 
-    'path' => resource_path('themes'),
+    'path' => resource_path('views/themes'),
 
     /*
     |--------------------------------------------------------------------------

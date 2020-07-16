@@ -51,13 +51,22 @@ interface ThemeModel
     public function hasAttribute($attribute);
 
     /**
-     * Check if a specific theme's view (do not include it's parent) exists.
+     * Check if a specific theme's view (do not include its parent) exists.
      *
      * @param string $name The view name
      *
      * @return bool
      */
     public function hasView($name);
+
+    /**
+     * Check if a specific theme's asset (do not include its parent) exists.
+     *
+     * @param string $path The asset path
+     *
+     * @return bool
+     */
+    public function hasAsset($path);
 
     /**
      * Extends a theme.
@@ -79,10 +88,10 @@ interface ThemeModel
     public function asset($path, $secure = null);
 
     /**
-     * Get all paths to find views of theme and it's parent.
-     * This feature is required to set paths for ViewFinder.
+     * Get all paths to directories used to store the views of
+     * theme, inluding its parents.
      *
      * @return array Array of absolute paths
      */
-    public function getFindViewPaths();
+    public function collectViewPaths();
 }
