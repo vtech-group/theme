@@ -41,8 +41,8 @@ class ThemeServiceProvider extends ServiceProvider
         // Register theme system
         $this->registerThemeSystem();
 
-        // Replace the current view.finder app
-        $this->registerThemeViewFinder();
+        // Replace the current view.finder app with ThemeViewFinder
+        $this->replaceViewFinder();
 
         // Register commands
         $this->registerCommands($this->commands);
@@ -91,18 +91,11 @@ class ThemeServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    protected function registerThemeViewFinder()
+    protected function replaceViewFinder()
     {
-        // From Laravel 6.0 and above, everything that 'view.finder' has done is perfect.
-        // But with Laravel 5.8 and earlier, we need to register for the new 'view.finder'
-        // app to replace the original one.
-        $appVersion = $this->app->version();
-
-        if (version_compare($appVersion, '6.0.0', '<')) {
-            $this->app->bind('view.finder', function ($app) {
-                return new ThemeViewFinder($app['files'], $app['config']['view.paths']);
-            });
-        }
+        $this->app->singleton('view.finder', function ($app) {
+            return new ThemeViewFinder($app['files'], $app['config']['view.paths']);
+        });
     }
 
     /**
