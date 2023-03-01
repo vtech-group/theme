@@ -253,7 +253,7 @@ class Theme implements ThemeModel
     {
         $assetsStorage = rtrim(config('themes.assets_folder'), '/\\');
         $assetsFolder  = $assetsStorage ? $assetsStorage . '/' . $this->name : $this->name;
-        $assetFile     = $assetFolder . '/' . $path;
+        $assetFile     = $assetsFolder . '/' . $path;
 
         return is_file(public_path($assetFile));
     }
