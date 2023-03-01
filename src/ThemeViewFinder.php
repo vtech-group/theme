@@ -3,6 +3,7 @@
 namespace Vtech\Theme;
 
 use Illuminate\View\FileViewFinder;
+use Jackiedo\PathHelper\Path;
 
 /**
  * The ThemeViewFinder class.
@@ -69,16 +70,16 @@ class ThemeViewFinder extends FileViewFinder
 
         if ('errors' == $namespace) {
             $additionals = array_map(function ($path) use ($namespace) {
-                return unify_separator($path . '/' . $namespace);
+                return Path::normalize($path . '/' . $namespace);
             }, $themePaths);
         } else {
             $additionals = array_map(function ($path) use ($namespace) {
-                return unify_separator($path . '/vendor/' . $namespace);
+                return Path::normalize($path . '/vendor/' . $namespace);
             }, $themePaths);
         }
 
         foreach ($hints as $path) {
-            $path = unify_separator($path);
+            $path = Path::normalize($path);
 
             if (!in_array($path, $additionals)) {
                 $additionals[] = $path;

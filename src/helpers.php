@@ -81,18 +81,3 @@ if (!function_exists('theme_img')) {
         return app('themes')->img($path, $secure, $alt, $class, $attributes);
     }
 }
-
-if (!function_exists('unify_separator')) {
-    /**
-     * Unify the separators of the path.
-     *
-     * @param string $path      The path need to format
-     * @param string $separator The directory separator
-     *
-     * @return string
-     */
-    function unify_separator($path, $separator = DIRECTORY_SEPARATOR)
-    {
-        return str_replace(['/', '\\'], $separator, $path);
-    }
-}

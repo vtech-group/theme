@@ -2,6 +2,8 @@
 
 namespace Vtech\Theme\Commands;
 
+use Jackiedo\PathHelper\Path;
+
 /**
  * The RemoveTheme class.
  *
@@ -62,7 +64,7 @@ class RemoveTheme extends BaseCommand
         $assetFolder = config('themes.assets_folder') . '/' . $themeFolder;
 
         $viewsPath  = $this->themes->themesPath($themeFolder);
-        $assetsPath = unify_separator(public_path(ltrim($assetFolder, '/')));
+        $assetsPath = Path::normalize(public_path(ltrim($assetFolder, '/')));
 
         $this->block('The following resources will be deleted:');
 

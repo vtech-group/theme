@@ -4,6 +4,7 @@ namespace Vtech\Theme;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Jackiedo\PathHelper\Path;
 use Vtech\Theme\Contracts\ThemeModel;
 use Vtech\Theme\Exceptions\AssetNotFound;
 use Vtech\Theme\Traits\Debug;
@@ -311,7 +312,7 @@ class Theme implements ThemeModel
             return $path;
         }
 
-        $path = ltrim(unify_separator($path, '/'), '/');
+        $path = ltrim(Path::normalize($path, '/'), '/');
 
         // Is this theme use external asset url?
         if (!is_null($this->asset_url)) {
@@ -341,7 +342,7 @@ class Theme implements ThemeModel
         // Lookup asset in current's theme assets folder
         $assetsStorage = rtrim(config('themes.assets_folder'), '/\\');
         $assetsFolder  = $assetsStorage ? $assetsStorage . '/' . $this->name : $this->name;
-        $fullUrl       = unify_separator($assetsFolder . '/' . $baseUrl, '/');
+        $fullUrl       = Path::normalize($assetsFolder . '/' . $baseUrl, '/');
 
         if (file_exists(public_path($fullUrl))) {
             return asset($fullUrl . $params, $secure);
@@ -354,13 +355,13 @@ class Theme implements ThemeModel
 
         // No parent theme? Lookup in the public folder.
         if (file_exists(public_path($baseUrl))) {
-            return asset(unify_separator($path, '/'), $secure);
+            return asset(Path::normalize($path, '/'), $secure);
         }
 
         // Asset not found at all. Error handling
         return $this->tryCall(function ($assetPath, $themeName) {
             throw new AssetNotFound($assetPath, $themeName);
-        }, [$baseUrl, $this->themes->name()], asset(unify_separator($path, '/'), $secure));
+        }, [$baseUrl, $this->themes->name()], asset(Path::normalize($path, '/'), $secure));
     }
 
     /**
@@ -370,7 +371,7 @@ class Theme implements ThemeModel
      */
     final public function getViewsPathAttribute()
     {
-        return unify_separator($this->themes->themesPath($this->name));
+        return Path::normalize($this->themes->themesPath($this->name));
     }
 
     /**
@@ -382,7 +383,7 @@ class Theme implements ThemeModel
     {
         $assetStorage = config('themes.assets_folder') . '/' . $this->name;
 
-        return unify_separator(public_path(ltrim($assetStorage, '/')));
+        return Path::normalize(public_path(ltrim($assetStorage, '/')));
     }
 
     /**
@@ -463,7 +464,7 @@ class Theme implements ThemeModel
         $url = trim($url);
 
         if (preg_match('/^(http(s?):)?\/\/.+/i', $url)) {
-            $this->attributes['asset_url'] = rtrim(unify_separator($url, '/'), '/');
+            $this->attributes['asset_url'] = rtrim(Path::normalize($url, '/'), '/');
         }
 
         return $this;

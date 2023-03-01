@@ -4,6 +4,7 @@ namespace Vtech\Theme;
 
 use BadMethodCallException;
 use Illuminate\Support\Arr;
+use Jackiedo\PathHelper\Path;
 use Symfony\Component\Finder\Finder;
 use Vtech\Theme\Exceptions\InvalidCacheFile;
 use Vtech\Theme\Exceptions\InvalidThemeJsonFile;
@@ -242,7 +243,7 @@ class ThemeSystem
         foreach ($jsonFinder as $themeJson) {
             $themeFolder = realpath($themeJson->getPath());
             $themeFolder = substr($themeFolder, strlen($this->themesPath()) + 1);
-            $themeName   = unify_separator($themeFolder, '/');
+            $themeName   = Path::normalize($themeFolder, '/');
 
             // If theme.json is not an empty file parse json values
             $themeJsonPath = $themeJson->getPathname();
@@ -286,7 +287,7 @@ class ThemeSystem
         $path = ltrim($path, '/\\');
         $path = $path ? $this->themesPath . '/' . $path : $this->themesPath;
 
-        return unify_separator($path);
+        return Path::normalize($path);
     }
 
     /**
@@ -385,7 +386,7 @@ class ThemeSystem
         $configViewPaths = config('view.paths');
 
         foreach ($configViewPaths as $path) {
-            $path = unify_separator($path);
+            $path = Path::normalize($path);
 
             if (!in_array($path, $recentThemePaths) && !in_array($path, $previousThemePaths)) {
                 $recentThemePaths[] = $path;
@@ -447,7 +448,7 @@ class ThemeSystem
     public function asset($path, $secure = null)
     {
         if (!$this->activated()) {
-            return asset(unify_separator($path, '/'), $secure);
+            return asset(Path::normalize($path, '/'), $secure);
         }
 
         return $this->current()->asset($path, $secure);
@@ -512,7 +513,7 @@ class ThemeSystem
         $path = (config('themes.path') ?: config('view.paths')[0]);
         $path = rtrim($path, '/\\');
 
-        $this->themesPath = unify_separator($path);
+        $this->themesPath = Path::normalize($path);
 
         return $this;
     }
@@ -524,7 +525,7 @@ class ThemeSystem
      */
     protected function setCachePath()
     {
-        $this->cacheFile = unify_separator(base_path('bootstrap/cache/themes.php'));
+        $this->cacheFile = Path::normalize(base_path('bootstrap/cache/themes.php'));
 
         return $this;
     }
